@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Loader2, Sparkles, CheckCircle2, Mail, Lock, Zap } from 'lucide-react'
 import { API_ENDPOINTS, buildApiUrl } from '../../services/api'
+import { useToast } from '../../context/ToastContext'
 
 const STEPS = {
   REQUEST_OTP: 'request_otp',
@@ -11,14 +12,13 @@ const STEPS = {
 
 export const ForgotPassword = () => {
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const [step, setStep] = useState(STEPS.REQUEST_OTP)
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
 
   const extractErrorMessage = async (response) => {
     try {
@@ -43,8 +43,6 @@ export const ForgotPassword = () => {
 
   const handleRequestOTP = async (event) => {
     event.preventDefault()
-    setError('')
-    setSuccess('')
     setLoading(true)
 
     try {
@@ -60,10 +58,10 @@ export const ForgotPassword = () => {
         throw new Error(await extractErrorMessage(response))
       }
 
-      setSuccess('OTP sent to your email. Check your inbox.')
+      addToast('OTP sent to your email. Check your inbox.', 'success')
       setStep(STEPS.VERIFY_OTP)
     } catch (submitError) {
-      setError(submitError.message)
+      addToast(submitError.message, 'error')
     } finally {
       setLoading(false)
     }
@@ -71,8 +69,6 @@ export const ForgotPassword = () => {
 
   const handleVerifyOTP = async (event) => {
     event.preventDefault()
-    setError('')
-    setSuccess('')
     setLoading(true)
 
     try {
@@ -92,10 +88,10 @@ export const ForgotPassword = () => {
       localStorage.setItem('access_token', data.access)
       localStorage.setItem('refresh_token', data.refresh)
 
-      setSuccess('OTP verified. Now reset your password.')
+      addToast('OTP verified. Now reset your password.', 'success')
       setStep(STEPS.RESET_PASSWORD)
     } catch (submitError) {
-      setError(submitError.message)
+      addToast(submitError.message, 'error')
     } finally {
       setLoading(false)
     }
@@ -103,11 +99,9 @@ export const ForgotPassword = () => {
 
   const handleResetPassword = async (event) => {
     event.preventDefault()
-    setError('')
-    setSuccess('')
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.')
+      addToast('Passwords do not match.', 'error')
       return
     }
 
@@ -128,12 +122,12 @@ export const ForgotPassword = () => {
         throw new Error(await extractErrorMessage(response))
       }
 
-      setSuccess('Password reset successfully. Redirecting to login...')
+      addToast('Password reset successfully. Redirecting to login...', 'success')
       setTimeout(() => {
         navigate('/login')
       }, 1500)
     } catch (submitError) {
-      setError(submitError.message)
+      addToast(submitError.message, 'error')
     } finally {
       setLoading(false)
     }
@@ -206,22 +200,10 @@ export const ForgotPassword = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 my-2 text-slate-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
                     placeholder="you@example.com"
                   />
                 </label>
-
-                {error && (
-                  <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                    {success}
-                  </div>
-                )}
 
                 <button
                   type="submit"
@@ -248,18 +230,6 @@ export const ForgotPassword = () => {
                     className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
                   />
                 </label>
-
-                {error && (
-                  <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                    {success}
-                  </div>
-                )}
 
                 <button
                   type="submit"
@@ -314,18 +284,6 @@ export const ForgotPassword = () => {
                     placeholder="••••••••"
                   />
                 </label>
-
-                {error && (
-                  <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                    {success}
-                  </div>
-                )}
 
                 <button
                   type="submit"

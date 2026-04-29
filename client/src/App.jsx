@@ -1,10 +1,8 @@
-import { useState } from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
 import { Routes, Route } from 'react-router-dom'
+import './App.css'
+import { ToastProvider } from './context/ToastContext'
+import { ToastContainer } from './components/ToastContainer'
 import { Home } from './pages/public/Home'
 import Aboutus from './pages/public/Aboutus'
 import { Contactus } from './pages/public/Contactus'
@@ -15,7 +13,7 @@ import { ForgotPassword } from './pages/public/ForgotPassword'
 
 function App() {
   return (
-    <>
+    <ToastProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -27,7 +25,8 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
-    </>
+      <ToastContainer />
+    </ToastProvider>
   )
 }
 

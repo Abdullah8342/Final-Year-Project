@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, CheckCircle2, Loader2, Sparkles } from 'lucide-react'
 import { API_ENDPOINTS, buildApiUrl } from '../../services/api'
+import { useToast } from '../../context/ToastContext'
 
 const initialFormState = {
   first_name: '',
@@ -14,10 +15,9 @@ const initialFormState = {
 
 const Register = () => {
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const [formData, setFormData] = useState(initialFormState)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -53,11 +53,9 @@ const Register = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
-    setSuccess('')
 
     if (formData.password !== formData.confirm_password) {
-      setError('Password and confirm password must match.')
+      addToast('Password and confirm password must match.', 'error')
       return
     }
 
@@ -76,13 +74,13 @@ const Register = () => {
         throw new Error(await extractErrorMessage(response))
       }
 
-      setSuccess('Account created successfully. You can log in now.')
+      addToast('Account created successfully. You can log in now.', 'success')
       setFormData(initialFormState)
       setTimeout(() => {
         navigate('/login')
       }, 1200)
     } catch (submitError) {
-      setError(submitError.message || 'Something went wrong. Please try again.')
+      addToast(submitError.message || 'Something went wrong. Please try again.', 'error')
     } finally {
       setLoading(false)
     }
@@ -222,18 +220,6 @@ const Register = () => {
                   />
                 </label>
               </div>
-
-              {error ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {error}
-                </div>
-              ) : null}
-
-              {success ? (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                  {success}
-                </div>
-              ) : null}
 
               <button
                 type="submit"

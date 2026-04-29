@@ -4,6 +4,7 @@ export const API_ENDPOINTS = {
   auth: {
     register: '/account/',
     login: '/account/api/token/',
+    logout: '/account/api/token/blacklist/',
     forgotPassword: '/account/api/password-forget/',
     verifyOtp: '/account/api/verify-otp/',
     resetPassword: '/account/api/password-reset/',

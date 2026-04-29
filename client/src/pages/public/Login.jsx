@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Loader2, Sparkles, CheckCircle2 } from 'lucide-react'
 import { API_ENDPOINTS, buildApiUrl } from '../../services/api'
+import { useToast } from '../../context/ToastContext'
 
 const initialFormState = {
   email: '',
@@ -10,10 +11,9 @@ const initialFormState = {
 
 export const Login = () => {
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const [formData, setFormData] = useState(initialFormState)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -49,8 +49,6 @@ export const Login = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
-    setSuccess('')
     setLoading(true)
 
     try {
@@ -73,7 +71,7 @@ export const Login = () => {
       localStorage.setItem('access_token', access)
       localStorage.setItem('refresh_token', refresh)
 
-      setSuccess('Login successful. Redirecting to your profile...')
+      addToast('Login successful!', 'success')
       setFormData(initialFormState)
 
       // Redirect to profile after a short delay
@@ -81,7 +79,7 @@ export const Login = () => {
         navigate('/profile')
       }, 1200)
     } catch (submitError) {
-      setError(submitError.message || 'Something went wrong. Please try again.')
+      addToast(submitError.message || 'Something went wrong. Please try again.', 'error')
     } finally {
       setLoading(false)
     }
@@ -180,18 +178,6 @@ export const Login = () => {
                   Forgot password?
                 </Link>
               </div>
-
-              {error ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {error}
-                </div>
-              ) : null}
-
-              {success ? (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                  {success}
-                </div>
-              ) : null}
 
               <button
                 type="submit"
