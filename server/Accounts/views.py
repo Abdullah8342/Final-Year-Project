@@ -2,7 +2,6 @@
 Views.py
 """
 
-from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
@@ -17,6 +16,20 @@ from .serializers import (
 )
 from .utils import generate_otp, save_otp, verify_otp
 from .tasks import send_otp_email
+
+
+def queue_otp_email(email, otp):
+    """
+    Send the OTP email through Celery when available.
+
+    Fall back to a direct task run so the request does not fail in local
+    development when the worker or broker is unavailable.
+    """
+
+    try:
+        send_otp_email.delay(email, otp)
+    except Exception:
+        send_otp_email.run(email, otp)
 
 # Create your views here.
 
@@ -41,12 +54,9 @@ class ForgetPassword(APIView):
         serializers = RequestOTPSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
         email = serializers.validated_data["email"]
-        user = get_object_or_404(User, email=email)
-        if user is None:
-            return Response({"message": f"User With That {email} Does Not Exist"})
         otp = generate_otp()
         save_otp(email, otp)
-        send_otp_email.delay(email, otp)
+        queue_otp_email(email, otp)
         return Response({"message": "OTP sent to your email"})
 
 
@@ -82,12 +92,9 @@ class RequestOTPView(APIView):
         serializers = RequestOTPSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
         email = serializers.validated_data["email"]
-        user = get_object_or_404(User, email=email)
-        if user is None:
-            return Response({"message": f"User With That {email} Does Not Exist"})
         otp = generate_otp()
         save_otp(email, otp)
-        send_otp_email.delay(email, otp)
+        queue_otp_email(email, otp)
         return Response({"message": "OTP sent"})
 
 

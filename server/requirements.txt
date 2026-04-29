@@ -7,3 +7,4 @@ django-celery-results==2.6.0
 django-redis==6.0.0
 redis==7.3.0
 Pillow==12.1.0
+django-cors-headers
