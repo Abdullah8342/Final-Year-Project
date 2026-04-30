@@ -10,6 +10,7 @@ import Profile from './pages/private/Profile'
 import { Login } from './pages/public/Login'
 import Register from './pages/public/Register'
 import { ForgotPassword } from './pages/public/ForgotPassword'
+import Services from './pages/public/Services'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/aboutus" element={<Aboutus />} />
           <Route path="/contactus" element={<Contactus />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/services" element={<Services />} />
         </Routes>
       </BrowserRouter>
       <ToastContainer />
